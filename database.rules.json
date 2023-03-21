@@ -1,0 +1,11 @@
+{
+    
+      "rules": {
+        "some_path": {
+          "$uid": {
+            ".read": true,
+            ".write": "auth.uid === $uid"
+          }
+        }
+      }
+    }
