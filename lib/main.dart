@@ -35,7 +35,7 @@ class _MainAppState extends State<MainApp> {
   bool drawCursor = false;
   bool tapUp = true;
   FirebaseFirestore db = FirebaseFirestore.instance;
-  String uid = "";
+  String _uid = "";
 
   @override
   _MainAppState() {
@@ -90,9 +90,28 @@ class _MainAppState extends State<MainApp> {
 
     // ******* INSERT FIRESTORE CODE HERE https://firebase.google.com/docs/firestore/quickstart#dart
 
-    db.collection('mrkaosha').add({"test": 1});
+    //db.collection(_uid).add({"author_uid": _uid,"test": 1});
+    db
+        .collection('listtest')
+        .doc(_uid)
+        .set({"author_uid": _uid, "author_name": 'mrkaosha', 'test': 3});
+
+    db.collection(_uid).get().then(
+      (querySnapshot) {
+        print("Successfully completed");
+        for (var docSnapshot in querySnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+        }
+      },
+      onError: (e) => print("Error completing: $e"),
+    );
 
     return (correct && numPoints > 1);
+  }
+
+  void updateUser(String uid) {
+    _uid = uid;
+    print(_uid);
   }
 
   @override
@@ -103,8 +122,10 @@ class _MainAppState extends State<MainApp> {
       home: Scaffold(
         body: ListView(
           children: [
-            const Align(
-              child: LoginButton(),
+            Align(
+              child: LoginButton(
+                updateUid: updateUser,
+              ),
             ),
             Align(
               child: ProblemStatement(currentEquation: currentEquation),
@@ -157,7 +178,12 @@ class _MainAppState extends State<MainApp> {
 }
 
 class LoginButton extends StatefulWidget {
-  const LoginButton({super.key});
+  LoginButton({
+    required this.updateUid,
+    super.key,
+  });
+
+  late dynamic updateUid;
 
   @override
   State<LoginButton> createState() => _LoginButtonState();
@@ -171,6 +197,7 @@ class _LoginButtonState extends State<LoginButton> {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         print(user.uid);
+        widget.updateUid(user.uid);
         userName =
             user.email != null ? user.email!.split('@')[0] : 'Guest User';
         setState(() {
