@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class _MainAppState extends State<MainApp> {
   Map currentEquation = {};
   bool drawCursor = false;
   bool tapUp = true;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   @override
   _MainAppState() {
@@ -131,6 +133,11 @@ class _MainAppState extends State<MainApp> {
       });
     }
     print(correct && numPoints > 1);
+    
+    // ******* INSERT FIRESTORE CODE HERE https://firebase.google.com/docs/firestore/quickstart#dart
+            
+    db.collection('mrkaosha').add({"test":1});
+
     return (correct && numPoints > 1);
   }
 
@@ -258,11 +265,14 @@ class LoginButton extends StatefulWidget {
 
 class _LoginButtonState extends State<LoginButton> {
   late bool loggedIn = false;
+  late String userName = 'Guest User';
 
   _LoginButtonState() {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         print(user.email);
+        userName =
+            user.email != null ? user.email!.split('@')[0] : 'Guest User';
         setState(() {
           loggedIn = true;
         });
@@ -290,9 +300,17 @@ class _LoginButtonState extends State<LoginButton> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: loggedIn
-          ? TextButton(
-              child: const Text('Log Out'),
-              onPressed: () => print('logout'),
+          ? Column(
+              children: [
+                Text('Welcome $userName'),
+                TextButton(
+                  onPressed: () => setState(() {
+                    loggedIn = false;
+                    FirebaseAuth.instance.signOut;
+                  }),
+                  child: const Text('Log Out'),
+                ),
+              ],
             )
           : SignInButton(
               Buttons.GoogleDark,
