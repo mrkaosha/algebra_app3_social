@@ -94,9 +94,9 @@ class _MainAppState extends State<MainApp> {
     db
         .collection('listtest')
         .doc(_uid)
-        .set({"author_uid": _uid, "author_name": 'mrkaosha', 'test': 3});
+        .set({"author_uid": _uid, "author_name": 'mrkaosha', 'test': FieldValue.serverTimestamp()});
 
-    db.collection(_uid).get().then(
+    db.collection('listtest').get().then(
       (querySnapshot) {
         print("Successfully completed");
         for (var docSnapshot in querySnapshot.docs) {
